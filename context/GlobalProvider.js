@@ -18,7 +18,7 @@ const GlobalProvider = ({ children }) => {
           setIsLogged(true);
           setUser(res);
         } else {
-          setIsLogged(true); // To be changed when session is integrated
+          setIsLogged(false); // To be changed when session is integrated
           setUser(null);
         }
       })

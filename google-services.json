@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "615064679006",
+    "project_id": "newinton-d19f5",
+    "storage_bucket": "newinton-d19f5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:615064679006:android:b5befc1cc5e77fedfdfacf",
+        "android_client_info": {
+          "package_name": "com.anonymous.newington"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPAuTp0WoOkljjV4CEtqoaz1g-Jk114QA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
