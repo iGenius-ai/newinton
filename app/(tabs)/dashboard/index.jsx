@@ -5,10 +5,11 @@ import ProfileCard from '../../../components/screen/ProfileCard';
 import { transactions } from '../../../lib/transactions';
 import { Link, useNavigation } from 'expo-router';
 import AnimatedProgressCircle from '../../../components/screen/AnimatedProgressCircle';
+import { useGlobalContext } from '../../../context/GlobalProvider';
 
 const TransactionItem = ({ item }) => {
   const navigation = useNavigation(); // Hook to access navigation
-
+  
   const handlePress = () => {
     navigation.navigate('trxdetail/[details]', { details: item.id }); // Navigate to the details screen with the ID
   };
@@ -26,6 +27,11 @@ const TransactionItem = ({ item }) => {
 
 const Dashboard = () => {
   const navigation = useNavigation(); // Hook to access navigation
+  const { user, setUser, setIsLogged } = useGlobalContext();
+
+  if (!user) {
+    console.log("No user found.");
+  }
 
   const startKYC = () => {
     navigation.navigate("kyc/kycForm"); // Navigate to the details screen with the ID
@@ -36,7 +42,7 @@ const Dashboard = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-[#F7F7F7]">
-      <ProfileCard />
+      <ProfileCard user={user} />
       <ScrollView className="flex-1 p-5">
         <View className="rounded-2xl bg-white p-5 py-8">
           <View className="items-center mb-8">

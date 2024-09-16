@@ -4,6 +4,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { Link, useNavigation } from 'expo-router';
 import PhoneInput from 'react-native-phone-number-input';
 import Toast from 'react-native-toast-message';
+import { signUp } from '../../lib/newinton';
+
+const BASE_URL = "https://newinton-backend-service.onrender.com";
 
 const advert = [
   { name: 'word-of-mouth', displayName: 'Word of Mouth' },
@@ -53,33 +56,8 @@ const SignUp = () => {
       bottomOffset: 40,
     });
 
-    const requestPayload = {
-      email: email,
-      password: password,
-      meta_data: {
-        fullName: fullName,
-        phoneNumber: phoneNumber
-      },
-      referrer: refereeName,
-      referrer_source: selectedAdvert.name
-    };
-
     try {
-      const response = await fetch(`${BASE_URL}/api/v1/accounts/create`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestPayload),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setIsLoading(false);
-        // If the response is not ok, we throw an error with the message from the server
-        throw new Error(data.message || 'An error occurred during signup');
-      }
+      await signUp( email, password, fullName, phoneNumber, refereeName, selectedAdvert );
       
       Toast.show({
         type: 'success',

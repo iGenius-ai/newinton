@@ -2,11 +2,11 @@ import { NotificationBing } from 'iconsax-react-native'
 import React from 'react'
 import { Text, View } from 'react-native'
 
-const ProfileCard = () => {
+const ProfileCard = ({ user }) => {
   return (
     <View className="mt-10 p-5 flex-row items-center justify-between">
       <View>
-        <Text className="text-2xl font-circularBold">Hello Leonard,</Text>
+        <Text className="text-2xl font-circularBold">Hello {user?.metadata?.fullName},</Text>
         <Text className="text-base font-circular text-[#667085]">Good evening 👋</Text>
       </View>
       <View className="bg-[#FFFFFF] p-3 rounded-full relative">

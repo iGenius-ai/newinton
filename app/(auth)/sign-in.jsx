@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ActivityIndicator, Alert } from 'react-native';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import messaging from '@react-native-firebase/messaging'
+import { getCurrentUser, signIn } from '../../lib/newinton';
+import { useGlobalContext } from '../../context/GlobalProvider';
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [fcmToken, setFcmToken] = useState('');
+  const { setIsLogged, setUser } = useGlobalContext();
 
   // Firebase config
   const requestUserPermission = async () => {
@@ -22,13 +26,20 @@ const SignIn = () => {
   }
 
   useEffect(() => {
-    if (requestUserPermission()) {
-      messaging().getToken().then((token) => {
-        console.log("FCM Token", token)
-      })
-    } else {
-      console.log("Permission Denied", authStatus)
-    }
+    const setupFCM = async () => {
+      if (await requestUserPermission()) {
+        try {
+          const token = await messaging().getToken();
+          console.log("FCM Token", token);
+          setFcmToken(token); // Store the token in state
+          Alert.alert("This is your FCM token: ", token)
+        } catch (error) {
+          console.error("Error getting FCM token:", error);
+        }
+      }
+    };
+
+    setupFCM();
 
     messaging().getInitialNotification().then(async (remoteMessage) => {
       if (remoteMessage) {
@@ -45,7 +56,7 @@ const SignIn = () => {
     });
 
     const unsubscribe = messaging().onMessage(async (remoteMessage) => {
-      Alert.alert("A new FCM Message arrived!", JSON.stringify(remoteMessage));
+      console.log("A new FCM Message arrived!", JSON.stringify(remoteMessage));
     });
 
     return unsubscribe;
@@ -63,39 +74,28 @@ const SignIn = () => {
       bottomOffset: 40,
     });
 
-    const requestPayload = {
-      email: email,
-      password: password,
-      fcm_token
-    };
-
     try {
-      const response = await fetch(`${BASE_URL}/api/v1/accounts/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestPayload),
-      });
+      await signIn(email, password, fcmToken);
 
-      const data = await response.json();
+      const userData = await getCurrentUser();
+      setUser(userData);
 
-      if (!response.ok) {
-        setIsLoading(false);
-        // If the response is not ok, we throw an error with the message from the server
-        throw new Error(data.message || 'An error occurred during signup');
-      }
-      
       Toast.show({
         type: 'success',
         text1: 'Authentication Successful',
-        text2: 'Your account has been created successfully.',
+        text2: 'You have successfully logged in.',
         visibilityTime: 2000,
         autoHide: true,
         topOffset: 50,
         bottomOffset: 40,
       });
+
       setIsLoading(false);
+
+      setTimeout(() => {
+        // Navigate to dashboard
+        router.replace("/(tabs)/dashboard");
+      }, 2000);
     } catch (error) {
       // Check if the error is from our API (has a message property)
       if (error.message && typeof error.message === 'string') {
