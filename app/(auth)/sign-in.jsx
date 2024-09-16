@@ -26,20 +26,14 @@ const SignIn = () => {
   }
 
   useEffect(() => {
-    const setupFCM = async () => {
-      if (await requestUserPermission()) {
-        try {
-          const token = await messaging().getToken();
-          console.log("FCM Token", token);
-          setFcmToken(token); // Store the token in state
-          Alert.alert("This is your FCM token: ", token)
-        } catch (error) {
-          console.error("Error getting FCM token:", error);
-        }
-      }
-    };
-
-    setupFCM();
+    if (requestUserPermission()) {
+      messaging().getToken().then((token) => {
+        console.log("FCM Token", token);
+        setFcmToken(token); // Store the token in state
+      })
+    } else {
+      console.log("Permission Denied", authStatus)
+    }
 
     messaging().getInitialNotification().then(async (remoteMessage) => {
       if (remoteMessage) {
