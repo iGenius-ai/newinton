@@ -168,7 +168,7 @@ const SignIn = () => {
                 <ActivityIndicator size={20} color={"#D0D5DD"} /> 
               ) : (
                 <Text className="font-circular text-white text-center text-lg">
-                Create new account
+                  Sign In
                 </Text>
               )}
             </TouchableOpacity>
