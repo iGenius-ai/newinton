@@ -88,7 +88,7 @@ const SignIn = () => {
 
       setTimeout(() => {
         // Navigate to dashboard
-        router.replace("/(tabs)/dashboard");
+        router.replace("/dashboard");
       }, 2000);
     } catch (error) {
       // Check if the error is from our API (has a message property)
