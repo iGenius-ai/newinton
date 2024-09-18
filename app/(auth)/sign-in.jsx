@@ -73,6 +73,7 @@ const SignIn = () => {
 
       const userData = await getCurrentUser();
       setUser(userData);
+      setIsLogged(true); 
 
       Toast.show({
         type: 'success',

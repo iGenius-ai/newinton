@@ -4,7 +4,7 @@
     "slug": "newington",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/app-icon.png",
     "scheme": "myapp",
     "splash": {
       "image": "./assets/splash.png",
@@ -12,7 +12,8 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.newington"
     },
     "android": {
       "googleServicesFile": "./google-services.json",
