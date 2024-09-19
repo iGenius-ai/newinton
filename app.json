@@ -4,7 +4,7 @@
     "slug": "newington",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/app-icon.png",
+    "icon": "./assets/icon.png",
     "scheme": "myapp",
     "splash": {
       "image": "./assets/splash.png",
@@ -18,7 +18,7 @@
     "android": {
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/app-icon.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.anonymous.newington"

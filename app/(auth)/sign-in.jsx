@@ -86,11 +86,8 @@ const SignIn = () => {
       });
 
       setIsLoading(false);
-
-      setTimeout(() => {
-        // Navigate to dashboard
-        router.replace("/dashboard");
-      }, 2000);
+      // Navigate to dashboard
+      router.replace("/dashboard");
     } catch (error) {
       // Check if the error is from our API (has a message property)
       if (error.message && typeof error.message === 'string') {

@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { getCurrentUser } from "../lib/newinton";
 import Toast from "react-native-toast-message";
 import { toastConfig } from "../lib/toastConfig";
-import * as SecureStore from 'expo-secure-store';
+import { Alert } from "react-native";
 
 const GlobalContext = createContext();
 export const useGlobalContext = () => useContext(GlobalContext);
@@ -13,34 +13,23 @@ const GlobalProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const token = await SecureStore.getItemAsync('userToken');
-        if (token) {
-          const userData = await getCurrentUser();
-          if (userData) {
-            setIsLogged(true);
-            setUser(userData);
-          } else {
-            // Token exists but user data fetch failed, clear token
-            await SecureStore.deleteItemAsync('userToken');
-            setIsLogged(false);
-            setUser(null);
-          }
+    getCurrentUser()
+      .then((res) => {
+        if (res) {
+          setIsLogged(true);
+          setUser(res);
+          Alert.alert("User found: ", user)
         } else {
           setIsLogged(false);
           setUser(null);
         }
-      } catch (error) {
-        console.error('Error checking authentication:', error);
-        setIsLogged(false);
-        setUser(null);
-      } finally {
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+      .finally(() => {
         setLoading(false);
-      }
-    };
-
-    checkAuth();
+      });
   }, []);
 
   return (
