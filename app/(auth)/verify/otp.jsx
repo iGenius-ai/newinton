@@ -85,8 +85,8 @@ const OTP = () => {
       }
       // Navigate to the home screen
     } else if (from === 'reset') {
-      // Navigate to the create new password screen
-      navigation.navigate('reset_password');
+      // Navigate to the create new password screen with email and OTP
+      navigation.navigate('reset_password', { email, otp: code });
     }
   };
   

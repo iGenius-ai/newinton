@@ -18,7 +18,6 @@ const GlobalProvider = ({ children }) => {
         if (res) {
           setIsLogged(true);
           setUser(res);
-          Alert.alert("User found: ", user)
         } else {
           setIsLogged(false);
           setUser(null);

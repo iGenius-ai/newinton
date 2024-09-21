@@ -9,6 +9,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import PhoneInput from 'react-native-international-phone-number';
 import Checkbox from 'expo-checkbox';
 import fields from '../../../../lib/fields';
+import * as SecureStore from 'expo-secure-store';
 
 const Stack = createStackNavigator();
 
@@ -153,17 +154,53 @@ const KYCFormScreen = ({ route }) => {
   };
   
 
-  const handleSubmit = () => {
-    const formattedData = { ...formData };
-    
-    // Format phone numbers
-    Object.keys(phoneData).forEach(field => {
-      formattedData[field] = formatPhoneNumber(field);
-    });
-
-    console.log('Submitting form data:', formattedData);
-    // Here you would typically send the formatted data to your backend
+  const handleSubmit = async () => {
+    try {
+      const token = await SecureStore.getItemAsync('userToken');
+      const formattedData = { ...formData };
+      
+      // Format phone numbers
+      Object.keys(phoneData).forEach(field => {
+        formattedData[field] = formatPhoneNumber(field);
+      });
+  
+      // Create form data for document upload (if needed)
+      const formData = new FormData();
+      if (formattedData.document) {
+        formData.append('document', {
+          uri: formattedData.document.uri,
+          name: formattedData.document.name,
+          type: formattedData.document.type,
+        });
+      }
+  
+      // Add other form fields
+      formData.append('kyc_information', JSON.stringify(formattedData));
+  
+      // Send request
+      const response = await fetch('https://newinton-backend-service.onrender.com/api/v1/accounts/update-kyc-information', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,  // Ensure JWT token is added here
+          'Content-Type': 'multipart/form-data',  // For document upload
+        },
+        body: formData,
+      });
+  
+      const result = await response.json();
+      
+      if (response.ok) {
+        Alert.alert('Success', 'KYC information updated successfully');
+      } else {
+        Alert.alert('Error', result.error || 'Failed to update KYC information');
+      }
+  
+    } catch (error) {
+      console.error('Error submitting KYC form:', error);
+      Alert.alert('Error', 'An error occurred while submitting the form.');
+    }
   };
+  
 
   return (
     <ScrollView className="flex-1 bg-[#F7F7F7] p-4">

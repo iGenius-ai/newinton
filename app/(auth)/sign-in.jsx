@@ -19,16 +19,11 @@ const SignIn = () => {
     const enabled = 
           authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
           authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-
-    if (enabled) {
-      console.log("Authorization Status: ", authStatus)
-    }
   }
 
   useEffect(() => {
     if (requestUserPermission()) {
       messaging().getToken().then((token) => {
-        console.log("FCM Token", token);
         setFcmToken(token); // Store the token in state
       })
     } else {

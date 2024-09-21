@@ -22,7 +22,6 @@ const TabIcon = ({ IconComponent, color, variant, textColor, name, focused }) =>
 
 const TabLayout = () => {
   const { loading, isLogged } = useGlobalContext();
-
   if (!loading && !isLogged) return <Redirect href="/sign-in" />;
 
   return (

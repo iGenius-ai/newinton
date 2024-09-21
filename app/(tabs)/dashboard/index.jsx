@@ -27,7 +27,7 @@ const TransactionItem = ({ item }) => {
 
 const Dashboard = () => {
   const navigation = useNavigation(); // Hook to access navigation
-  const { user, setUser, setIsLogged } = useGlobalContext();
+  const { user } = useGlobalContext();
 
   if (!user) {
     console.log("No user found.");

@@ -1,12 +1,75 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRoute, useNavigation } from '@react-navigation/native';
+import Toast from 'react-native-toast-message';
+import { resetPassword } from '../../lib/newinton';
 
 const Confirm = () => {
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false)
-  const [showRetypePassword, setShowRetypePassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
+  const [showRetypePassword, setShowRetypePassword] = useState(false);
   const [retypePassword, setRetypePassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const route = useRoute();
+  const navigation = useNavigation();
+  const { email, otp } = route.params;
+
+  const handleResetPassword = async () => {
+    if (password !== retypePassword) {
+      Toast.show({
+        type: 'error',
+        text1: 'Passwords do not match',
+        text2: 'Please make sure both passwords are the same.',
+        visibilityTime: 3000,
+        autoHide: true,
+        topOffset: 50,
+        bottomOffset: 40,
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    Toast.show({
+      type: 'info',
+      text1: 'Resetting Password',
+      text2: 'Please wait...',
+      visibilityTime: 2000,
+      autoHide: true,
+      topOffset: 50,
+      bottomOffset: 40,
+    });
+
+    try {
+      await resetPassword(email, otp, password, retypePassword);
+      
+      Toast.show({
+        type: 'success',
+        text1: 'Password Reset Successful',
+        text2: 'You can now log in with your new password.',
+        visibilityTime: 3000,
+        autoHide: true,
+        topOffset: 50,
+        bottomOffset: 40,
+      });
+
+      // Navigate to login screen
+      navigation.navigate('sign-in');
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Password Reset Failed',
+        text2: error.message,
+        visibilityTime: 3000,
+        autoHide: true,
+        topOffset: 50,
+        bottomOffset: 40,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1 h-full bg-white">
@@ -60,7 +123,7 @@ const Confirm = () => {
         </View>
 
         <View>
-          <TouchableOpacity className="items-center bg-[#4EB1B3] p-4 mb-4 rounded-full">
+          <TouchableOpacity className="items-center bg-[#4EB1B3] p-4 mb-4 rounded-full" onPress={handleResetPassword}>
             <Text className="font-circularMedium text-white text-lg">Update new password</Text>
           </TouchableOpacity>
         </View>
