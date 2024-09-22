@@ -10,6 +10,7 @@ import PhoneInput from 'react-native-international-phone-number';
 import Checkbox from 'expo-checkbox';
 import fields from '../../../../lib/fields';
 import * as SecureStore from 'expo-secure-store';
+import { useGlobalContext } from '../../../../context/GlobalProvider';
 
 const Stack = createStackNavigator();
 
@@ -56,8 +57,9 @@ const KYCSelectionScreen = ({ navigation }) => {
 };
 
 const KYCFormScreen = ({ route }) => {
+  const { user } = useGlobalContext();
   const { sectionId, title, small, submitText } = route.params;
-  const [formData, setFormData] = useState({ "Full Name": "Charles Emmanuel" });
+  const [formData, setFormData] = useState({ "Full Name": `${user.meta_data.fullName}` });
   const [phoneData, setPhoneData] = useState({});
   const [showAdvertModal, setShowAdvertModal] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -81,7 +83,7 @@ const KYCFormScreen = ({ route }) => {
   const selectAdvert = (item) => {
     setSelectedAdvert(item);
     setShowAdvertModal(false);
-    handleInputChange('advertSource', item.id);
+    handleInputChange(fields.name, item);
   };
 
   const handleDateSelect = (event, selectedDate) => {
@@ -152,56 +154,55 @@ const KYCFormScreen = ({ route }) => {
       console.log(error);
     }
   };
-  
 
-  const handleSubmit = async () => {
-    try {
-      const token = await SecureStore.getItemAsync('userToken');
-      const formattedData = { ...formData };
-      
-      // Format phone numbers
-      Object.keys(phoneData).forEach(field => {
-        formattedData[field] = formatPhoneNumber(field);
-      });
-  
-      // Create form data for document upload (if needed)
-      const formData = new FormData();
-      if (formattedData.document) {
-        formData.append('document', {
-          uri: formattedData.document.uri,
-          name: formattedData.document.name,
-          type: formattedData.document.type,
-        });
+  const validateFormData = () => {
+    let isValid = true;
+    fields[sectionId].forEach(field => {
+      if (!formData[field.name]) {
+        Alert.alert(`${field.name} is required`);
+        isValid = false;
       }
-  
-      // Add other form fields
-      formData.append('kyc_information', JSON.stringify(formattedData));
-  
-      // Send request
-      const response = await fetch('https://newinton-backend-service.onrender.com/api/v1/accounts/update-kyc-information', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,  // Ensure JWT token is added here
-          'Content-Type': 'multipart/form-data',  // For document upload
-        },
-        body: formData,
-      });
-  
-      const result = await response.json();
-      
-      if (response.ok) {
-        Alert.alert('Success', 'KYC information updated successfully');
-      } else {
-        Alert.alert('Error', result.error || 'Failed to update KYC information');
-      }
-  
-    } catch (error) {
-      console.error('Error submitting KYC form:', error);
-      Alert.alert('Error', 'An error occurred while submitting the form.');
-    }
+    });
+    return isValid;
   };
   
+  const handleSubmit = async () => {
+    if (!validateFormData()) return;
 
+    const kycInformation = {};
+    fields[sectionId].forEach((field) => {
+      if (field.type === 'text' || field.type === 'checkbox' || field.type === 'dropdown') {
+        kycInformation[field.name] = formData[field.name];
+      } else if (field.type === 'phone') {
+        kycInformation[field.name] = formatPhoneNumber(field.name);
+      } else if (field.type === 'date') {
+        kycInformation[field.name] = formData[field.name];
+      } else if (field.type === 'file') {
+        kycInformation[field.name] = formData.document;
+      }
+    });
+  
+    console.log(kycInformation);
+
+    // const token = await SecureStore.getItemAsync('userToken'); // assuming you're storing the JWT token in SecureStore
+    // const response = await fetch('https://newinton-backend-service.onrender.com/api/v1/accounts/update-kyc-information', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     Authorization: `Bearer ${token}`,
+    //   },
+    //   body: JSON.stringify({ kyc_information: kycInformation }),
+    // });
+  
+    // if (response.ok) {
+    //   // handle success response
+    //   Alert.alert('KYC information updated successfully!');
+    // } else {
+    //   // handle error response
+    //   Alert.alert('Error updating KYC information:', response.statusText);
+    // }
+  };
+  
   return (
     <ScrollView className="flex-1 bg-[#F7F7F7] p-4">
       <Text className="text-2xl font-circularMedium text-gray-900 mb-2">{title}</Text>
@@ -239,7 +240,7 @@ const KYCFormScreen = ({ route }) => {
                 className="border border-[#D0D5DD] rounded-md overflow-hidden flex-row items-center p-3"
                 onPress={() => setShowAdvertModal(true)}
               >
-                <Text className="font-circularMedium flex-1 text-base">{selectedAdvert.name}</Text>
+                <Text className="font-circularMedium flex-1 text-base">{formData[field.name] && formData[field.name].name}</Text>
                 <Ionicons name="chevron-down-outline" size={16} color="#888" />
               </TouchableOpacity>
             </>
@@ -297,7 +298,7 @@ const KYCFormScreen = ({ route }) => {
                 onPress={openPicker}
               >
                 {formData.document ? (
-                  <Text>{formData.document.name}</Text>
+                  <Text>{formData.document.name} ({(formData.document.size / 1024).toFixed(2)} KB)</Text>
                 ) : (
                   <View className="w-full h-36 rounded-md flex justify-center items-center space-x-2">
                     <DocumentUpload size="24" color="#37A19A" variant="Bulk"/>
@@ -378,7 +379,7 @@ const KYCFormScreen = ({ route }) => {
         <DateTimePicker
           value={formData[currentDateField] || new Date()}
           mode="date"
-          display="default"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
           onChange={handleDateSelect}
         />
       )}
