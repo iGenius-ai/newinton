@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { SafeAreaView, View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { SafeAreaView, View, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { ArrowRight2, ReceiptItem } from 'iconsax-react-native';
 import ProfileCard from '../../../components/screen/ProfileCard';
 import { transactions } from '../../../lib/transactions';
 import { Link, useNavigation } from 'expo-router';
 import AnimatedProgressCircle from '../../../components/screen/AnimatedProgressCircle';
 import { useGlobalContext } from '../../../context/GlobalProvider';
+import { images } from '../../../constants';
 
 const TransactionItem = ({ item }) => {
   const navigation = useNavigation(); // Hook to access navigation
@@ -55,6 +56,19 @@ const Dashboard = () => {
             <Text className="font-circular text-[#667085] text-base">
               You will need to fill and submit some required KYC details that will aid us serve you better.
             </Text>
+            <View className="flex-row justify-between items-center bg-[#F7F7F7] rounded-full p-1.5 mt-4">
+              <View className="flex-row gap-x-2">
+                <View className="overflow-hidden rounded-full">
+                  <Image source={images.person2} className="w-10 h-10" />
+                </View>
+                <View>
+                  <Text className="font-circular text-[#667085] text-sm">Your Account Manager</Text>
+                  <Text className="font-circularMedium text-[#1D2639] text-base">Elizabeth Ross</Text>
+                </View>
+              </View>
+
+              <ArrowRight2 size={16} color="#667085" className="mr-2" />
+            </View>
             <TouchableOpacity onPress={startKYC} className="items-center bg-[#4EB1B3] p-4 mt-6 rounded-full" activeOpacity={0.7}>
               <Text className="font-circularMedium text-white text-lg">Start KYC registration</Text>
             </TouchableOpacity>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Modal, FlatList, Alert, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, TextInput, Modal, FlatList, Alert, Platform, ActivityIndicator } from 'react-native';
 import { ArrowRight2, Calendar, Cloud, DocumentUpload } from 'iconsax-react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker'
@@ -11,25 +11,27 @@ import Checkbox from 'expo-checkbox';
 import fields from '../../../../lib/fields';
 import * as SecureStore from 'expo-secure-store';
 import { useGlobalContext } from '../../../../context/GlobalProvider';
+import Toast from 'react-native-toast-message';
+import { useNavigation } from 'expo-router';
 
 const Stack = createStackNavigator();
 
 const KYCSelectionScreen = ({ navigation }) => {
   const sections = [
-    { id: 'required', title: 'Required Information', small: 'Carefully input the required information before submitting', submitText: 'Update Changes' },
-    { id: 'company', title: 'Company Details', small: 'Please fill up this form if you have a company, also note that it is okay for you to give us only the information you have access to currently.', submitText: 'Submit Details' },
-    { id: 'mainContact', title: 'Main Contact', small: 'Please fill up this form, also note that it is okay for you to give us only the information you have access to currently.', submitText: 'Submit Details' },
-    { id: 'secondaryContact', title: 'Secondary Contact', small: 'Please fill up this form, also note that it is okay for you to give us only the information you have access to currently.', submitText: 'Submit Details' },
-    { id: 'incomeDetails', title: 'Income Details', small: 'Carefully input the required information before submitting', submitText: 'Update Changes' },
-    { id: 'previousAccountant', title: 'Previous Accountant', small: 'Please fill up this form if you have a company, also note that it is okay for you to give us only the information you have access to currently.', submitText: 'Submit Details' },
-    { id: 'otherDetails', title: 'Other Details', small: 'Please fill up this form, also note that it is okay for you to give us only the information you have access to currently.', submitText: 'Submit Details' },
-    { id: 'serviceRequired', title: 'Service Required', small: 'Please fill up this form, also note that it is okay for you to give us only the information you have access to currently.', submitText: 'Submit Details' },
-    { id: 'accountReturnDetails', title: 'Accounts and Return Details', small: 'Please fill up this form, also note that it is okay for you to give us only the information you have access to currently.', submitText: 'Update Changes' },
-    { id: 'confirmationStatement', title: 'Comfirmation Statement', small: 'Please fill up this form if you have a company, also note that it is okay for you to give us only the information you have access to currently.', submitText: 'Submit Details' },
-    { id: 'vatDetails', title: 'VAT Details', small: 'Please fill up this form, also note that it is okay for you to give us only the information you have access to currently.', submitText: 'Submit Details' },
-    { id: 'payeDetails', title: 'PAYE Details', small: 'Please fill up this form, also note that it is okay for you to give us only the information you have access to currently.', submitText: 'Submit Details' },
-    { id: 'autoEnrollment', title: 'Auto-Enrollment', small: 'Carefully input the required information before submitting', submitText: 'Update Changes' },
-    { id: 'pid', title: 'PID', small: 'Please fill up this form if you have a company, also note that it is okay for you to give us only the information you have access to currently.', submitText: 'Submit Details' },
+    { id: 'required_information', title: 'Required Information', small: 'Carefully input the required information before submitting', submitText: 'Update Changes' },
+    { id: 'company_details', title: 'Company Details', small: 'Please fill up this form if you have a company, also note that it is okay for you to give us only the information you have access to currently.', submitText: 'Submit Details' },
+    { id: 'main_contact', title: 'Main Contact', small: 'Please fill up this form, also note that it is okay for you to give us only the information you have access to currently.', submitText: 'Submit Details' },
+    { id: 'secondary_contact', title: 'Secondary Contact', small: 'Please fill up this form, also note that it is okay for you to give us only the information you have access to currently.', submitText: 'Submit Details' },
+    { id: 'income_details', title: 'Income Details', small: 'Carefully input the required information before submitting', submitText: 'Update Changes' },
+    { id: 'previous_accountant', title: 'Previous Accountant', small: 'Please fill up this form if you have a company, also note that it is okay for you to give us only the information you have access to currently.', submitText: 'Submit Details' },
+    { id: 'other_details', title: 'Other Details', small: 'Please fill up this form, also note that it is okay for you to give us only the information you have access to currently.', submitText: 'Submit Details' },
+    { id: 'services_required', title: 'Service Required', small: 'Please fill up this form, also note that it is okay for you to give us only the information you have access to currently.', submitText: 'Submit Details' },
+    { id: 'accounts_and_returns_details', title: 'Accounts and Return Details', small: 'Please fill up this form, also note that it is okay for you to give us only the information you have access to currently.', submitText: 'Update Changes' },
+    { id: 'confirmation_statement', title: 'Comfirmation Statement', small: 'Please fill up this form if you have a company, also note that it is okay for you to give us only the information you have access to currently.', submitText: 'Submit Details' },
+    { id: 'vat_details', title: 'VAT Details', small: 'Please fill up this form, also note that it is okay for you to give us only the information you have access to currently.', submitText: 'Submit Details' },
+    { id: 'paye_details', title: 'PAYE Details', small: 'Please fill up this form, also note that it is okay for you to give us only the information you have access to currently.', submitText: 'Submit Details' },
+    { id: 'auto_enrolment', title: 'Auto-Enrollment', small: 'Carefully input the required information before submitting', submitText: 'Update Changes' },
+    { id: 'p11d', title: 'PID', small: 'Please fill up this form if you have a company, also note that it is okay for you to give us only the information you have access to currently.', submitText: 'Submit Details' },
     { id: 'registration', title: 'Registration', small: 'To receive accounting services from Newington, you must carefully read and sign our letter of engagement.', submitText: 'Submit Details' },
     { id: 'identityVerification', title: 'Identity Verification', small: `Before you can receive accounting services from Newinton we are required by law to verify your identity. \n \n To do this, you'll have to upload a valid government-issued ID like an`, submitText: 'Submit Details' },
   ];
@@ -64,8 +66,11 @@ const KYCFormScreen = ({ route }) => {
   const [showAdvertModal, setShowAdvertModal] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [currentDateField, setCurrentDateField] = useState('');
-  const [selectedAdvert, setSelectedAdvert] = useState({ name: 'Select an option', id: null });
-  const [ doc, setDoc ] = useState();
+  const [ loadingSubmit, setLoadingSubmit ] = useState(false);
+  const navigation = useNavigation();
+  const [showModal, setShowModal] = useState({});
+  // State to track selected values for each dropdown
+  const [selectedValues, setSelectedValues] = useState({ name: 'Select an option', id: null });
 
   const adverts = [
     { name: 'Private Limited Company', id: 'private_limited' },
@@ -73,17 +78,77 @@ const KYCFormScreen = ({ route }) => {
     { name: 'Trademark License', id: 'trademark' },
   ];
 
+  // Function to select advert for a specific field
+  const selectAdvert = (fieldName, item) => {
+    // Update the selected value for the specific field
+    setSelectedValues((prevValues) => ({
+      ...prevValues,
+      [fieldName]: item.name,
+    }));
+
+    // Close the specific modal
+    setShowModal((prevShowModal) => ({
+      ...prevShowModal,
+      [fieldName]: false,
+    }));
+
+    handleInputChange(fieldName, item);
+  };
+
+  // Function to open a specific modal
+  const openModal = (fieldName) => {
+    setShowModal((prevShowModal) => ({
+      ...prevShowModal,
+      [fieldName]: true,
+    }));
+  };
+
+  // Function to render the dropdown field
+  const renderDropdownField = (field) => (
+    <>
+      <Text className="mb-1 font-circularMedium text-base text-gray-600">{field.name}</Text>
+      <TouchableOpacity
+        className="border border-[#D0D5DD] rounded-md overflow-hidden flex-row items-center p-3"
+        onPress={() => openModal(field.name)} // Open specific modal
+      >
+        <Text className="font-circularMedium flex-1 text-base">
+          {selectedValues[field.name] || 'Select an option'}
+        </Text>
+        <Ionicons name="chevron-down-outline" size={16} color="#888" />
+      </TouchableOpacity>
+
+      {/* Modal to select an advert */}
+      <Modal
+        visible={showModal[field.name] || false} // Control visibility of the specific modal
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowModal((prev) => ({ ...prev, [field.name]: false }))}
+      >
+        <View className="flex-1 bg-black/30 bg-opacity-50 justify-end">
+          <View className="bg-white py-5 rounded-t-lg">
+            <FlatList
+              data={adverts}
+              keyExtractor={item => item.id}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  className="px-5 py-2"
+                  onPress={() => selectAdvert(field.name, item)} // Pass field name
+                >
+                  <Text className="text-base font-circularMedium">{item.name}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </View>
+      </Modal>
+    </>
+  );
+
   const handleInputChange = (field, value) => {
     setFormData(prevData => ({
       ...prevData,
       [field]: value
     }));
-  };
-
-  const selectAdvert = (item) => {
-    setSelectedAdvert(item);
-    setShowAdvertModal(false);
-    handleInputChange(fields.name, item);
   };
 
   const handleDateSelect = (event, selectedDate) => {
@@ -167,40 +232,105 @@ const KYCFormScreen = ({ route }) => {
   };
   
   const handleSubmit = async () => {
-    if (!validateFormData()) return;
-
-    const kycInformation = {};
-    fields[sectionId].forEach((field) => {
-      if (field.type === 'text' || field.type === 'checkbox' || field.type === 'dropdown') {
-        kycInformation[field.name] = formData[field.name];
-      } else if (field.type === 'phone') {
-        kycInformation[field.name] = formatPhoneNumber(field.name);
-      } else if (field.type === 'date') {
-        kycInformation[field.name] = formData[field.name];
-      } else if (field.type === 'file') {
-        kycInformation[field.name] = formData.document;
-      }
+    setLoadingSubmit(true)
+    // Show loading toast
+    Toast.show({
+      type: 'info',
+      text1: 'Submitting...',
+      text2: 'Please wait while we process your request.',
+      visibilityTime: 2000,
+      autoHide: true,
+      topOffset: 50,
+      bottomOffset: 40,
     });
   
-    console.log(kycInformation);
-
-    // const token = await SecureStore.getItemAsync('userToken'); // assuming you're storing the JWT token in SecureStore
-    // const response = await fetch('https://newinton-backend-service.onrender.com/api/v1/accounts/update-kyc-information', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     Authorization: `Bearer ${token}`,
-    //   },
-    //   body: JSON.stringify({ kyc_information: kycInformation }),
-    // });
+    const kycInformation = {};
+    
+    if (sectionId === 'services_required') {
+      // Handle services_required specifically, directly assigning to kycData
+      kycInformation.services_required = fields[sectionId]
+        .filter(field => field.type === 'checkbox' && formData[field.name])
+        .map(field => field.name);
+    } else {
+      // Handle other sections as before
+      fields[sectionId].forEach((field) => {
+        if (field.type === 'text' || field.type === 'checkbox') {
+          kycInformation[field.id] = formData[field.name]; 
+        } else if (field.type === 'dropdown') {
+          kycInformation[field.id] = formData[field.name]?.name; 
+        } else if (field.type === 'phone') {
+          kycInformation[field.id] = formatPhoneNumber(formData[field.name]); 
+        } else if (field.type === 'date') {
+          kycInformation[field.id] = formData[field.name]; 
+        } else if (field.type === 'file') {
+          kycInformation[field.id] = formData.document?.uri; 
+        }
+      });
+    }
   
-    // if (response.ok) {
-    //   // handle success response
-    //   Alert.alert('KYC information updated successfully!');
-    // } else {
-    //   // handle error response
-    //   Alert.alert('Error updating KYC information:', response.statusText);
-    // }
+    // Dynamically set the nested key based on sectionId
+    const kycData = { kyc_information: {} };
+    if (sectionId === 'services_required') {
+      kycData.kyc_information[sectionId] = kycInformation.services_required; // Assign directly
+    } else {
+      kycData.kyc_information[sectionId] = kycInformation; // Handle other sections
+    }
+  
+    const token = await SecureStore.getItemAsync('userToken');
+    try {
+      const response = await fetch('https://newinton-backend-service.onrender.com/api/v1/accounts/update-kyc-information', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(kycData), 
+      });
+
+      console.log(kycData)
+  
+      if (response.ok) {
+        setLoadingSubmit(false)
+        // Show success toast
+        Toast.show({
+          type: 'success',
+          text1: 'Submission Successful',
+          text2: 'KYC details have been submitted.',
+          visibilityTime: 2000,
+          autoHide: true,
+          topOffset: 50,
+          bottomOffset: 40,
+        });
+        navigation.navigate("KYCSelection");
+      } else {
+        setLoadingSubmit(false)
+        const errorData = await response.json();
+        console.log(errorData)
+        // Show error toast
+        Toast.show({
+          type: 'error',
+          text1: 'Submission Failed',
+          text2: `Error updating KYC information: Please fill in all fields`,
+          visibilityTime: 3000,
+          autoHide: true,
+          topOffset: 50,
+          bottomOffset: 40,
+        });
+      }
+    } catch (error) {
+      console.log(error)
+      setLoadingSubmit(false)
+      // Show error toast for network or other errors
+      Toast.show({
+        type: 'error',
+        text1: 'Submission Failed',
+        text2: `Error: ${error.message}`,
+        visibilityTime: 3000,
+        autoHide: true,
+        topOffset: 50,
+        bottomOffset: 40,
+      });
+    }
   };
   
   return (
@@ -233,7 +363,7 @@ const KYCFormScreen = ({ route }) => {
               <Text className="font-circular text-base text-gray-800">{field.name}</Text>
             </TouchableOpacity>
           )}
-          {field.type === 'dropdown' && (
+          {/* {field.type === 'dropdown' && (
             <>
               <Text className="mb-1 font-circularMedium text-base text-gray-600">{field.name}</Text>
               <TouchableOpacity
@@ -244,7 +374,9 @@ const KYCFormScreen = ({ route }) => {
                 <Ionicons name="chevron-down-outline" size={16} color="#888" />
               </TouchableOpacity>
             </>
-          )}
+          )} */}
+          {field.type === 'dropdown' && renderDropdownField(field)}
+
           {field.type === 'phone' && (
             <>
               <Text className="mb-1 font-circularMedium text-base text-gray-600">{field.name}</Text>
@@ -348,9 +480,13 @@ const KYCFormScreen = ({ route }) => {
         onPress={handleSubmit}
         activeOpacity={0.7}
       >
-        <Text className="font-circularMedium text-white text-center text-lg">{submitText}</Text>
+        {loadingSubmit ? (
+          <ActivityIndicator size={20} color={"#D0D5DD"} /> 
+        ) : (
+          <Text className="font-circularMedium text-white text-center text-lg">{submitText}</Text>
+        )}
       </TouchableOpacity>
-
+{/* 
       <Modal
         visible={showAdvertModal}
         transparent={true}
@@ -373,7 +509,7 @@ const KYCFormScreen = ({ route }) => {
             />
           </View>
         </View>
-      </Modal>
+      </Modal> */}
 
       {showDatePicker && (
         <DateTimePicker

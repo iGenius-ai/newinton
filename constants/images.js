@@ -39,6 +39,9 @@ import foodplate from "../assets/images/foodplate.png";
 import grid from "../assets/images/Grid.png"
 import star from "../assets/images/star.png"
 import share from "../assets/images/share.png"
+import person1 from "../assets/images/person1.png"
+import person2 from "../assets/images/person2.png"
+import person3 from "../assets/images/person3.png"
 
 import book from "../assets/svgs/book.png";
 import pinned from "../assets/svgs/pinned.png";
@@ -62,5 +65,6 @@ export default {
   heart, comment, postImage, more, verified, post_profile, confetti, GTB, swap, sent, received, eyeSlash, profile, foodplate, 
   thumbnail, cards, path, logo, pattern, logoSmall, empty, group, granularx, notify, wave, transactbg, infoCircle, Nigeria, star,
   profileBg, moreWhite, arrowLeft, book, trendUp, setting, bookAlt, cameraWhite, cameraAlt, trendUpAlt, startConvo, share,
-  Person, pinned, call, line, menu, voice, send, emojis, moneys, Solana, Question, callBG, person, fiatons, car, food, grid
+  Person, pinned, call, line, menu, voice, send, emojis, moneys, Solana, Question, callBG, person, fiatons, car, food, grid, person1,
+  person2, person3
 };

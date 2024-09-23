@@ -2,6 +2,8 @@ import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, FlatList, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link } from 'expo-router';
+import { Image } from 'react-native';
+import { images } from '../constants';
 
 const Welcome = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -11,18 +13,21 @@ const Welcome = () => {
   const screens = [
     {
       title: "Accounting with No hassle",
-      subtitle: "Get endless accounting services from Newinton Accountancy from the comfort of anywhere without stress or hassle.",
+      subtitle: "Enjoy seamless accounting services from Newinton Accountancy, accessible anywhere, without stress or hassle.",
       backgroundColor: '#e0e0ff',
+      src: images.person1
     },
     {
       title: "One-one consultation",
-      subtitle: "Get endless accounting services from Newinton Accountancy from the comfort of anywhere without stress or hassle.",
+      subtitle: "Receive tailored advice from our expert accountants. Get the support you need, anytime, anywhere.",
       backgroundColor: '#e0e0ff',
+      src: images.person2
     },
     {
       title: "Generate invoices easily",
-      subtitle: "Create professional invoices for yourself or your businesses fast and without hassle anytime, anywhere.",
+      subtitle: "Create professional invoices quickly with intuitive tools that save you time, so you can focus on growing your business.",
       backgroundColor: '#e0e0ff',
+      src: images.person3
     },
   ];
 
@@ -30,7 +35,9 @@ const Welcome = () => {
     <View style={[styles.screen, { width: windowWidth }]}>
       <Text className="font-circularBold text-2xl" style={styles.title}>{item.title}</Text>
       <Text className="font-circular px-2 text-lg mb-5" style={styles.subtitle}>{item.subtitle}</Text>
-      <View className="rounded-3xl" style={[styles.placeholder, { backgroundColor: item.backgroundColor }]} />
+      <View className="rounded-3xl overflow-hidden flex items-center justify-center" style={[styles.placeholder, { backgroundColor: item.backgroundColor }]} >
+        <Image source={item.src} className="w-[110%]" />
+      </View>
     </View>
   );
 
